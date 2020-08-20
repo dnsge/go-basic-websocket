@@ -11,19 +11,16 @@ import (
 	"fmt"
 	"github.com/dnsge/go-basic-websocket"
 	"net/http"
-	"net/url"
 	"sync"
 	"time"
 )
 
 func main() {
 	// simple echo websocket
-	u := &url.URL{Scheme: "wss", Host: "echo.websocket.org", Path: "/"}
-	headers := &http.Header{
+	headers := http.Header{
 		"User-Agent": []string{"echo-client/1.0"},
 	}
-
-	ws := basicws.NewBasicWebsocket(u, headers)
+	ws := basicws.NewBasicWebsocket("wss://echo.websocket.org", headers)
 	wg := sync.WaitGroup{}
 
 	ws.OnConnect = func() {

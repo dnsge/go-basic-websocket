@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -26,8 +25,8 @@ type BasicWebsocket struct {
 	connected bool
 	connMutex sync.Mutex
 
-	url    *url.URL
-	header *http.Header
+	url    string
+	header http.Header
 
 	readerMessages chan []byte
 	readerDone     chan bool
@@ -47,12 +46,12 @@ type BasicWebsocket struct {
 }
 
 // Create a new BasicWebsocket with a URL and Header
-func NewBasicWebsocket(u *url.URL, header *http.Header) *BasicWebsocket {
+func NewBasicWebsocket(url string, header http.Header) *BasicWebsocket {
 	return &BasicWebsocket{
 		conn:      nil,
 		connected: false,
 
-		url:    u,
+		url:    url,
 		header: header,
 
 		readerMessages: make(chan []byte, bufferSize),
@@ -89,7 +88,7 @@ func (ws *BasicWebsocket) Connect() error {
 		return AlreadyConnectedError
 	}
 
-	c, _, err := websocket.DefaultDialer.Dial(ws.url.String(), *ws.header)
+	c, _, err := websocket.DefaultDialer.Dial(ws.url, ws.header)
 	if err != nil {
 		return err
 	}
