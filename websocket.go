@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gorilla/websocket"
+	"net"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
-	bufferSize         = 200
-	closedErrorMessage = "use of closed network connection"
+	bufferSize = 200
 )
 
 var (
@@ -111,9 +111,7 @@ func (ws *BasicWebsocket) startReader() {
 		for {
 			messageType, message, err := ws.conn.ReadMessage()
 			if err != nil {
-				// conn.Close() was called, so just stop reading
-				// see https://github.com/golang/go/issues/4373
-				if strings.Contains(err.Error(), closedErrorMessage) {
+				if errors.Is(err, net.ErrClosed) {
 					return
 				}
 
